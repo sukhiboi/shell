@@ -5,25 +5,30 @@
 #include <string.h>
 #include "parser.h"
 
-void execute(char *command)
+int change_dir(Array_P command)
 {
-    Array_P split_string = split(command, ' ');
-    if (strcmp(split_string->elements[0], "cd") == 0)
-    {
-        chdir(split_string->elements[1]);
-        return;
-    }
-    int exitStatus = execvp(split_string->elements[0], split_string->elements);
-    if (exitStatus == -1)
-    {
-        printf("command not found\n");
-    }
+    return chdir(command->elements[1]);
+}
+
+int execute(char *command)
+{
+    Array_P split_command = split(command, ' ');
+    if (strcmp(split_command->elements[0], "cd") == 0)
+        return change_dir(split_command);
+    else
+        return execvp(split_command->elements[0], split_command->elements);
 }
 
 void prompt()
 {
     char cwd[255];
     printf("%s $ ", getcwd(cwd, sizeof(cwd)));
+}
+
+void handle_output(int exit_status)
+{
+    if (exit_status == -1)
+        printf("command not found\n");
 }
 
 int main()
@@ -36,7 +41,7 @@ int main()
         gets(command);
         int pid = fork();
         if (pid == 0)
-            execute(command);
+            handle_output(execute(command));
         else
             wait(&pid);
     }

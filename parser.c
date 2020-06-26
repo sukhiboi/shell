@@ -1,5 +1,5 @@
-    #include <stdio.h>
-    #include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "parser.h"
 
 int string_length(Char_P string)
@@ -39,8 +39,8 @@ Array_P create_array(int length)
 
 Array_P split(Char_P actual_string, char seperator)
 {
-    int length = string_length(actual_string);
-    int number_of_splits = get_number_of_splits(actual_string, seperator, length);
+    int length = string_length(actual_string) + 1;
+    int number_of_splits = get_number_of_splits(actual_string, seperator, length) + 1;
     Array_P array = create_array(number_of_splits);
     Char_P string = malloc(sizeof(char) * length);
     array->elements[0] = &string[0];
@@ -55,5 +55,6 @@ Array_P split(Char_P actual_string, char seperator)
             pos++;
         }
     }
+    array->elements[number_of_splits - 1] = NULL;
     return array;
 }

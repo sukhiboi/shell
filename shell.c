@@ -3,26 +3,13 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
-#include "parser.h"
-
-int change_dir(Array_P command)
-{
-    return chdir(command->elements[1]);
-}
-
-int execute(char *command)
-{
-    Array_P split_command = split(command, ' ');
-    if (strcmp(split_command->elements[0], "cd") == 0)
-        return change_dir(split_command);
-    else
-        return execvp(split_command->elements[0], split_command->elements);
-}
+#include "execute.h"
+#include "object.h"
 
 void prompt()
 {
     char cwd[255];
-    printf("%s $ ", getcwd(cwd, sizeof(cwd)));
+    printf("\n%s $ ", getcwd(cwd, sizeof(cwd)));
 }
 
 void handle_output(int exit_status)
@@ -33,6 +20,7 @@ void handle_output(int exit_status)
 
 int main()
 {
+    Object *aliases = create_object();
     while (1)
     {
         signal(SIGINT, SIG_IGN);
@@ -41,7 +29,10 @@ int main()
         gets(command);
         int pid = fork();
         if (pid == 0)
-            handle_output(execute(command));
+        {
+            signal(SIGINT, NULL);
+            handle_output(execute(aliases, command));
+        }
         else
             wait(&pid);
     }

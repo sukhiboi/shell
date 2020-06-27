@@ -39,7 +39,7 @@ Array_P create_array(int length)
 
 Array_P split(Char_P actual_string, char seperator)
 {
-    int length = string_length(actual_string) + 1;
+    int length = string_length(actual_string);
     int number_of_splits = get_number_of_splits(actual_string, seperator, length) + 1;
     Array_P array = create_array(number_of_splits);
     Char_P string = malloc(sizeof(char) * length);

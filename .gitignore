@@ -1,3 +1,2 @@
 shell
-shell.o
-parser.o
+*.o

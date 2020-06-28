@@ -22,7 +22,10 @@ int show_all_aliases(Object *aliases)
     KV_pair *p_walker = aliases->first;
     while (p_walker != NULL)
     {
-        printf("%s %s\n", p_walker->key, p_walker->value);
+        printf("%s ", p_walker->key);
+        for (int i = 0; i < p_walker->value->length; i++)
+            printf("%s ", p_walker->value->elements[i]);
+        printf("\n");
         p_walker = p_walker->next;
     }
     return 0;
@@ -34,7 +37,11 @@ int show_alias(Object *aliases, char *command)
     while (p_walker != NULL)
     {
         if (strcmp(p_walker->key, command) == 0)
-            printf("%s %s\n", p_walker->key, p_walker->value);
+        {
+            for (int i = 0; i < p_walker->value->length; i++)
+                printf("%s ", p_walker->value->elements[i]);
+            printf("\n");
+        }
         p_walker = p_walker->next;
     }
     return 0;
@@ -44,8 +51,11 @@ int save_alias(Object *aliases, Array_P query)
 {
     Array_P splitted_alias = split(query->elements[1], '=');
     char *key = splitted_alias->elements[0];
-    char *value = splitted_alias->elements[1];
-    if (key == NULL || value == NULL)
+    Array_P value = create_array(query->length - 2);
+    value->elements[0] = splitted_alias->elements[1];
+    for (int i = 2, value_idx = 1; i < query->length - 1; i++)
+        value->elements[value_idx] = query->elements[i];
+    if (key == NULL || splitted_alias->elements[1] == NULL)
         return -1;
     add_kv_pair(aliases, key, value);
     return 0;

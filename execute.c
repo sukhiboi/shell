@@ -13,11 +13,17 @@ int change_dir(char *newPath)
 
 int run_if_alias(Object *aliases, Array_P alias)
 {
+    print_split_string(alias);
     KV_pair *alias_details = get_kv_pair(aliases, alias->elements[0]);
     if (alias_details == NULL)
         return 1001;
-    alias->elements[0] = alias_details->value;
-    return execvp(alias_details->value, alias->elements);
+    Array_P final = create_array(alias_details->value->length + alias->length - 1);
+    int final_command_idx = 0;
+    for (int i = 0; i < alias_details->value->length; i++)
+        final->elements[final_command_idx++] = alias_details->value->elements[i];
+    for (int i = 1; i < alias->length; i++)
+        final->elements[final_command_idx++] = alias->elements[i];
+    return execvp(final->elements[0], final->elements);
 }
 
 int run_if_built_in_command(Object *aliases, Array_P query)

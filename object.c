@@ -10,7 +10,7 @@ Object *create_object(void)
     return obj;
 }
 
-KV_pair *create_kv_pair(char *key, char *value)
+KV_pair *create_kv_pair(char *key, Array_P value)
 {
     KV_pair *pair = malloc(sizeof(KV_pair));
     pair->key = key;
@@ -19,7 +19,7 @@ KV_pair *create_kv_pair(char *key, char *value)
     return pair;
 }
 
-void add_kv_pair(Object *obj, char *key, char *value)
+void add_kv_pair(Object *obj, char *key, Array_P value)
 {
     KV_pair *new_pair = create_kv_pair(key, value);
     KV_pair *p_walker = obj->first;

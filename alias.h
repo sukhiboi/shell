@@ -8,6 +8,6 @@ int show_all_aliases(Object *aliases);
 int show_alias(Object *aliases, char *command);
 int save_alias(Object *aliases, Array_P query);
 int process_alias(Object *aliases, Array_P query);
-
+int run_if_alias(Object *aliases, Array_P alias);
 
 #endif

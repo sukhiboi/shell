@@ -6,7 +6,7 @@
 typedef struct kv_pair
 {
     char *key;
-    List* value;
+    List *value;
     struct kv_pair *next;
 } KV_pair;
 

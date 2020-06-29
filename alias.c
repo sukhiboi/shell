@@ -61,21 +61,16 @@ List *parse_command_with_alias(Object *aliases, List *list)
 
 List *add_new_alias(Object *aliases, List *list)
 {
-    printf("adding new alias\n");
-    List *splitted_alias = split('=', list->first->next->value);
-    if (splitted_alias->first->next == NULL)
-        return NULL;
-    List *alias_value = create_list();
-    push(alias_value, splitted_alias->first->next->value);
-
-    Element *p_walker = list->first->next->next;
+    List *splitted_command = split('=', list->first->value);
+    char *key = splitted_command->first->value;
+    List *variable_value = create_list();
+    Element *p_walker = splitted_command->first->next;
     while (p_walker != NULL)
     {
-        push(alias_value, p_walker->value);
+        push(variable_value, p_walker->value);
         p_walker = p_walker->next;
     }
-    add_kv_pair(aliases, splitted_alias->first->value, alias_value);
-    // print_object(aliases);
+    add_kv_pair(variables, key, variable_value);
     return list;
 }
 

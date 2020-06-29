@@ -2,87 +2,142 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "parser.h"
+#include "list.h"
 #include "object.h"
 
-int has_char(char *str, char character)
+void print_list(List *l)
 {
-    int p_walker = 0;
-    while (str[p_walker] != '\0')
+    Element *f = l->first;
+    while (f != NULL)
     {
-        if (str[p_walker] == character)
-            return 1;
-        p_walker++;
+        printf("%s ", f->value);
+        f = f->next;
     }
-    return 0;
+    printf("\n");
 }
 
-int show_all_aliases(Object *aliases)
-{
-    KV_pair *p_walker = aliases->first;
-    while (p_walker != NULL)
-    {
-        printf("%s ", p_walker->key);
-        for (int i = 0; i < p_walker->value->length; i++)
-            printf("%s ", p_walker->value->elements[i]);
-        printf("\n");
-        p_walker = p_walker->next;
-    }
-    return 0;
-}
+// void print_object(Object *p)
+// {
+//     KV_pair *p_walker = p->first;
+//     while (p_walker != NULL)
+//     {
+//         printf("%s- =", p_walker->key);
+//         Element *value_p_walker = p_walker->value->first;
+//         while (value_p_walker != NULL)
+//         {
+//             printf(" %s", value_p_walker->value);
+//             value_p_walker = value_p_walker->next;
+//         }
+//         printf("\n");
+//         p_walker = p_walker->next;
+//     }
+// }
 
-int show_alias(Object *aliases, char *command)
+List *parse_command_with_alias(Object *aliases, List *list)
 {
-    KV_pair *p_walker = aliases->first;
+    printf("simple parsing\n");
+    List *parsed_alias_command = create_list();
+    Element *p_walker = list->first;
     while (p_walker != NULL)
     {
-        if (strcmp(p_walker->key, command) == 0)
+        KV_pair *pair = get_kv_pair(aliases, p_walker->value);
+        if (pair == NULL)
         {
-            for (int i = 0; i < p_walker->value->length; i++)
-                printf("%s ", p_walker->value->elements[i]);
-            printf("\n");
+            push(parsed_alias_command, p_walker->value);
+        }
+        else
+        {
+            Element *pair_p_walker = pair->value->first;
+            while (pair_p_walker != NULL)
+            {
+                push(parsed_alias_command, pair_p_walker->value);
+                pair_p_walker = pair_p_walker->next;
+            }
         }
         p_walker = p_walker->next;
     }
-    return 0;
+    return parsed_alias_command;
 }
 
-int save_alias(Object *aliases, Array_P query)
+List *add_new_alias(Object *aliases, List *list)
 {
-    Array_P splitted_alias = split(query->elements[1], '=');
-    char *key = splitted_alias->elements[0];
-    Array_P value = create_array(query->length - 2);
-    value->elements[0] = splitted_alias->elements[1];
-    for (int i = 2, value_idx = 1; i < query->length - 1; i++)
-        value->elements[value_idx] = query->elements[i];
-    if (key == NULL || splitted_alias->elements[1] == NULL)
-        return -1;
-    add_kv_pair(aliases, key, value);
-    return 0;
+    printf("adding new alias\n");
+    List *splitted_alias = split('=', list->first->next->value);
+    if (splitted_alias->first->next == NULL)
+        return NULL;
+    List *alias_value = create_list();
+    push(alias_value, splitted_alias->first->next->value);
+
+    Element *p_walker = list->first->next->next;
+    while (p_walker != NULL)
+    {
+        push(alias_value, p_walker->value);
+        p_walker = p_walker->next;
+    }
+    add_kv_pair(aliases, splitted_alias->first->value, alias_value);
+    // print_object(aliases);
+    return list;
 }
 
-int process_alias(Object *aliases, Array_P query)
+List *print_alias(Object *aliases, List *list)
 {
-    if (query->elements[1] == NULL)
-        return show_all_aliases(aliases);
-    if (has_char(query->elements[1], '='))
-        return save_alias(aliases, query);
-    if (query->elements[1] != NULL)
-        return show_alias(aliases, query->elements[1]);
-    return -1;
+    printf("printing one alias\n");
+    KV_pair *p_walker = aliases->first;
+    while (p_walker != NULL)
+    {
+        if (strcmp(list->first->next->value, p_walker->key) == 0)
+        {
+            printf("%s =", p_walker->key);
+            Element *value_p_walker = p_walker->value->first;
+            while (value_p_walker != NULL)
+            {
+                printf(" %s", value_p_walker->value);
+                value_p_walker = value_p_walker->next;
+            }
+            return NULL;
+        }
+        p_walker = p_walker->next;
+    }
+    return NULL;
 }
 
-int run_if_alias(Object *aliases, Array_P alias)
+void print_all_aliases(Object *aliases)
 {
-    print_split_string(alias);
-    KV_pair *alias_details = get_kv_pair(aliases, alias->elements[0]);
-    if (alias_details == NULL)
-        return 1001;
-    Array_P final = create_array(alias_details->value->length + alias->length - 1);
-    int final_command_idx = 0;
-    for (int i = 0; i < alias_details->value->length; i++)
-        final->elements[final_command_idx++] = alias_details->value->elements[i];
-    for (int i = 1; i < alias->length; i++)
-        final->elements[final_command_idx++] = alias->elements[i];
-    return execvp(final->elements[0], final->elements);
+    printf("printing all alias\n");
+    KV_pair *p_walker = aliases->first;
+    while (p_walker != NULL)
+    {
+        printf("%s =", p_walker->key);
+        Element *value_p_walker = p_walker->value->first;
+        while (value_p_walker != NULL)
+        {
+            printf(" %s", value_p_walker->value);
+            value_p_walker = value_p_walker->next;
+        }
+        p_walker = p_walker->next;
+    }
+}
+
+List *resolve_alias(Object *aliases, List *list)
+{
+    List *parsed = parse_command_with_alias(aliases, list);
+    if (strcmp(parsed->first->value, "alias") == 0)
+    {
+        if (parsed->first->next != NULL)
+        {
+            if (includes(parsed, '=') == 1)
+            {
+                return add_new_alias(aliases, parsed);
+            }
+            else
+            {
+                return print_alias(aliases, parsed);
+            }
+        }
+        else
+        {
+            print_all_aliases(aliases);
+        }
+    }
+    return parsed;
 }

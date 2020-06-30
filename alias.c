@@ -19,19 +19,19 @@ void print_list(List *l)
 void print_object(Object *p)
 {
     KV_pair *p_walker = p->first;
-    while (p_walker != NULL)
+     while (p_walker != NULL)
     {
         printf("%s- =", p_walker->key);
-        Element *value_p_walker = p_walker->value->first;
-        while (value_p_walker != NULL)
-        {
+         Element *value_p_walker = p_walker->value->first;
+         while (value_p_walker != NULL)
+         {
             printf(" %s", value_p_walker->value);
-            value_p_walker = value_p_walker->next;
+           value_p_walker = value_p_walker->next;
         }
-        printf("\n");
-        p_walker = p_walker->next;
-    }
-}
+         printf("\n");
+         p_walker = p_walker->next;
+     }
+ }
 
 List *parse_command_with_alias(Object *aliases, List *list)
 {

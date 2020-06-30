@@ -13,6 +13,7 @@ typedef struct kv_pair
 typedef struct object
 {
     KV_pair *first;
+    int count;
 } Object;
 
 Object *create_object(void);

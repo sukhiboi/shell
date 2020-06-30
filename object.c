@@ -7,6 +7,7 @@ Object *create_object(void)
 {
     Object *obj = malloc(sizeof(Object));
     obj->first = NULL;
+    obj->count = 0;
     return obj;
 }
 
@@ -19,37 +20,10 @@ KV_pair *create_kv_pair(char *key, List *value)
     return pair;
 }
 
-// void print_list(List *l)
-// {
-//     Element *f = l->first;
-//     while (f != NULL)
-//     {
-//         printf("%s ", f->value);
-//         f = f->next;
-//     }
-//     printf("\n");
-// }
-
-// void print_object(Object *p)
-// {
-//     KV_pair *p_walker = p->first;
-//     while (p_walker != NULL)
-//     {
-//         printf("%s =", p_walker->key);
-//         Element *value_p_walker = p_walker->value->first;
-//         while (value_p_walker != NULL)
-//         {
-//             printf(" %s-", value_p_walker->value);
-//             value_p_walker = value_p_walker->next;
-//         }
-//         printf("\n");
-//         p_walker = p_walker->next;
-//     }
-// }
-
 void add_kv_pair(Object *obj, char *key, List *value)
 {
     KV_pair *new_pair = create_kv_pair(key, value);
+    obj->count++;
     if (obj->first == NULL)
     {
         obj->first = new_pair;

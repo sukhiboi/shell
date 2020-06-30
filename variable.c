@@ -8,12 +8,8 @@ List *add_variable(Object *variables, List *list)
     List *splitted_command = split('=', list->first->value);
     char *key = splitted_command->first->value;
     List *variable_value = create_list();
-    Element *p_walker = splitted_command->first->next;
-    while (p_walker != NULL)
-    {
-        push(variable_value, p_walker->value);
-        p_walker = p_walker->next;
-    }
+    char *value = splitted_command->first->next->value;
+    push(variable_value, value);
     add_kv_pair(variables, key, variable_value);
     return list;
 }
@@ -27,7 +23,9 @@ List *resolve_variable(Object *variables, List *list)
     {
         KV_pair *pair = get_kv_pair(variables, p_walker->value);
         if (pair != NULL)
+        {
             p_walker->value = pair->value->first->value;
+        }
         p_walker = p_walker->next;
     }
     if (list->length == 1)

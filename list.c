@@ -34,7 +34,7 @@ List *split(char character, char *string)
     int length = strlen(string) + 1;
     char *string_on_heap = malloc(sizeof(char) * length);
     strcpy(string_on_heap, string);
-    push(split_string, &string_on_heap[0]);
+    push(split_string, string_on_heap);
     for (int i = 1; i < length; i++)
         if (string_on_heap[i] == character)
         {

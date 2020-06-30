@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <string.h>
+#include <sys/wait.h>
 #include "list.h"
 #include "object.h"
 #include "alias.h"
@@ -23,11 +24,12 @@ void handle_output(int exit_status)
 int execute(Object *aliases, Object *variables, char *query)
 {
     List *splitted_query = split(' ', query);
-    char **command_array = convert_to_array(splitted_query);
     char **parsed_command = built_in_handler(aliases, variables, splitted_query);
-    if (parsed_command != NULL)
-        command_array = parsed_command;
-    return execvp(command_array[0], command_array);
+    if (parsed_command == NULL)
+    {
+        return -1;
+    }
+    return execvp(parsed_command[0], parsed_command);
 }
 
 int main()
@@ -44,7 +46,8 @@ int main()
         if (pid == 0)
         {
             signal(SIGINT, NULL);
-            handle_output(execute(aliases, variables, command));
+            int exit_status = execute(aliases, variables, command);
+            handle_output(exit_status);
         }
         else
             wait(&pid);

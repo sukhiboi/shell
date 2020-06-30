@@ -16,17 +16,20 @@ int change_dir(Element *path)
         return chdir(path->value);
 }
 
-char **built_in_handler(Object *aliases, Object *variables, List *list)
+char **built_in_handler(Object *aliases, Object *variables, List *command)
 {
-    List *command = list;
-    if (strcmp(command->first->value, "cd") == 0)
-    {
-        change_dir(command->first->next);
-    }
     if (includes(command, '$') == 1)
     {
-        command = resolve_variable(variables, command);
+        resolve_variable(variables, command);
     }
-    command = resolve_alias(aliases, command);
-    return convert_to_array(command);
+    List *parsed_command = resolve_alias(aliases, command);
+    if (parsed_command == NULL)
+    {
+        return NULL;
+    }
+    if (strcmp(parsed_command->first->value, "cd") == 0)
+    {
+        change_dir(parsed_command->first->next);
+    }
+    return convert_to_array(parsed_command);
 }

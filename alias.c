@@ -16,22 +16,22 @@ void print_list(List *l)
     printf("\n");
 }
 
-// void print_object(Object *p)
-// {
-//     KV_pair *p_walker = p->first;
-//     while (p_walker != NULL)
-//     {
-//         printf("%s- =", p_walker->key);
-//         Element *value_p_walker = p_walker->value->first;
-//         while (value_p_walker != NULL)
-//         {
-//             printf(" %s", value_p_walker->value);
-//             value_p_walker = value_p_walker->next;
-//         }
-//         printf("\n");
-//         p_walker = p_walker->next;
-//     }
-// }
+void print_object(Object *p)
+{
+    KV_pair *p_walker = p->first;
+    while (p_walker != NULL)
+    {
+        printf("%s- =", p_walker->key);
+        Element *value_p_walker = p_walker->value->first;
+        while (value_p_walker != NULL)
+        {
+            printf(" %s", value_p_walker->value);
+            value_p_walker = value_p_walker->next;
+        }
+        printf("\n");
+        p_walker = p_walker->next;
+    }
+}
 
 List *parse_command_with_alias(Object *aliases, List *list)
 {
@@ -63,15 +63,16 @@ List *add_new_alias(Object *aliases, List *list)
 {
     List *splitted_command = split('=', list->first->next->value);
     char *key = splitted_command->first->value;
-    List *variable_value = create_list();
-    push(variable_value, splitted_command->first->next->value);
+
+    List *alias_value = create_list();
+    push(alias_value, splitted_command->first->next->value);
     Element *p_walker = list->first->next->next;
     while (p_walker != NULL)
     {
-        push(variable_value, p_walker->value);
+        push(alias_value, p_walker->value);
         p_walker = p_walker->next;
-       }
-    add_kv_pair(aliases, key, variable_value);
+    }
+    add_kv_pair(aliases, key, alias_value);
     print_object(aliases);
     return list;
 }

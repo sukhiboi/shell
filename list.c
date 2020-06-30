@@ -32,23 +32,15 @@ List *split(char character, char *string)
 {
     List *split_string = create_list();
     int length = strlen(string) + 1;
-    int new_length = 1;
+    char *string_on_heap = malloc(sizeof(char) * length);
+    strcpy(string_on_heap, string);
+    push(split_string, &string_on_heap[0]);
     for (int i = 1; i < length; i++)
-    {
-        new_length++;
-        if (string[i] == character || string[i] == '\0')
+        if (string_on_heap[i] == character)
         {
-            char *f = malloc(sizeof(char) * new_length);
-            int c = i + 1 - new_length;
-            for (int j = 0; j < new_length; j++)
-            {
-                f[j] = string[c++];
-            }
-            f[new_length - 1] = '\0';
-            push(split_string, f);
-            new_length = 0;
+            string_on_heap[i] = '\0';
+            push(split_string, &string_on_heap[i + 1]);
         }
-    }
     return split_string;
 }
 
